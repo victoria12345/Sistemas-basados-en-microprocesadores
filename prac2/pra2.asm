@@ -11,8 +11,9 @@ DATOS SEGMENT
 	positivas dw 3 dup(?)
 	negativas dw 3 dup(?)
 	CLR_PANT 	DB 	1BH,"[2","J$"
-	PREGUNTA 	DB 	1BH,"Introducir datos (1) o calcular valor por defecto (2)?"
-	ELECCION DB ?
+	PREGUNTA 	DB 	1BH,"[2;1fIntroducir datos (1) o calcular valor por defecto (2)?$"
+	TEXTO_AUX   DB  1BH,"[4;1fLa opcion elegida es: $"
+	ELECCION DB 3 dup(?)
 DATOS ENDS
 ;**************************************************************************
 ; DEFINICION DEL SEGMENTO DE PILA
@@ -50,7 +51,14 @@ INT 21H
 
 MOV AH,0AH			;ALMACENA LA ELECCION TECLEADA
 MOV DX,OFFSET ELECCION
+MOV ELECCION[0], 4
+INT 21H
 
+
+
+MOV AH,9
+MOV DX,OFFSET TEXTO_AUX		;MUESTRA "ELECCION ...
+INT 21H
 
 
 
