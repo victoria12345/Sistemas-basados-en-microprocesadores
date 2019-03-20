@@ -1,0 +1,16 @@
+1.El paso de binario a ASCII lo hemos implementado de la siguiente manera:
+	-Movemos a AX el número que nos interesa.
+	-Movemos a BX el número 10 para dividir.
+	-Dividimos con la instrucción IDIV.
+	-Tenemos en DX el resto y en AX el cociente (por lo que podemos dividir el cociente sucesivamente).
+	-Al resto se le suma 30h para obtener el caracter ASCII correspondiente.
+	-Guardamos la cifra en una cadena de caracteres.
+
+
+NOTA: Si la división es de 8 bits el resto se guarda en AH y el cociente en AL.
+
+2.No hemos utilizado el direccionamiento con base indexado ya que nos parecía razonablemente más simple y
+así dejamos libre el registro BX para otros usos.
+
+
+Autores: Ignacio Rabuñal y Victoria Pelayo, grupo 2301
