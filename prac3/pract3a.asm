@@ -26,19 +26,20 @@ _computeControlDigit PROC FAR 					;; En C es int unsigned long int factorial(un
 	MOV DX,0
 	MOV CX, 0
 	MOV SI, 6
-	MOV DI, 6
+	MOV DI,0
 	
-	LES BX, [BP + DI]
+	LES BP, [BP + 6]
 	
 SUMA:
 	MOV AX, ES:[BP + DI]	;; Lectura parámetro pasado como valor a esta funcion
 	
 	MOV BX,0h
-	SUB AH, 30h			;;LO PASAMOS A DECIMAL
-	MOV BL, AH
+	SUB AL, 30h			;;LO PASAMOS A DECIMAL
+	MOV BL, AL
 	ADD DX, BX			;;SUMAMOS EL IMPAR
 	
-	SUB AL, 30h		;;PASAMOS DE ASCII A DECIMAL
+	SUB AH, 30h		;;PASAMOS DE ASCII A DECIMAL
+	MOV AL, AH
 	MOV AH, 00h
 	
 	MOV BX, 3		;;MULTIPLICAMOS POR 3 LOS PARES
@@ -52,7 +53,7 @@ SUMA:
 	JNZ SUMA
 	
 	MOV BL, 10
-	MOV CX, DX 		;GUARDAMOS RESULTADOD DE LAS SUMAS
+	MOV CX, DX 		;GUARDAMOS RESULTADO DE LAS SUMAS
 
 DECENA:
 	MOV AX,DX
@@ -63,25 +64,50 @@ DECENA:
 	
 	MUL BL			;;MULTIPLICAMOS POR 10 PARA OBTENER EL NUMERO, A PARTR DEL COCIENTE
 	SUB AX, CX	;GUARDAMOS EL DIGITO DE CONTROL EN AX
-	
 
 	FIN:	
 		POP DI SI DX BX CX
-		POP BP							;; Restaurar el valor de BP antes de salir
+		POP BP				;; Restaurar el valor de BP antes de salir
+		RET
 _computeControlDigit ENDP						
-
-
-PUBLIC _decodeBarCode						;; Hacer visible y accesible la función desde C
+			
+PUBLIC _decodeBarCode					;; Hacer visible y accesible la función desde C
 _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned int n)
 	PUSH BP 							;; Salvaguardar BP en la pila para poder modificarle sin modificar su valor
 	MOV BP, SP	
 
+	PUSH CX BX DX DI AX	;;salvaguardamos los valores de los registros que vamos a usar
 	
 	LES BX, [BP + 6]
-
-	FIN:	
-		POP BP							;; Restaurar el valor de BP antes de salir
-_decodeBarCode ENDP					
+	
+	;; CODIGO PAIS
+	MOV AX, ES:[BX]
+	
+	SUB AH, 30h
+	SUB AL, 30h
+	
+	MOV CX, 00h
+	ADD CL, AH
+	
+	MOV AH, 00h
+	MOV DL, 10
+	MUL DL
+	
+	ADD CX, AX
+	
+	LDS BX, [BP + 10]
+	MOV SI, BP
+	
+	MOV BP, BX
+	MOV DS:BP, CX
+	
+	MOV BP, SI
+	
+	FIN2:	
+		POP AX DI DX BX CX
+		POP BP				;; Restaurar el valor de BP antes de salir
+		RET
+_decodeBarCode ENDP			
 	
 _TEXT ENDS
 END

@@ -38,12 +38,13 @@ int main( void ){
 	
 	decodeBarCode(barCodeStr, &countryCode, &companyCode, &productCode, &controlDigit);
 	printf("Codigo de barras leido:\n");
-	printf("- Codigo de Pais - %u -\n",countryCode);
-	printf("- Codigo de Empresa - %u -\n",companyCode);
+	//printf("- Codigo de Pais - %u -\n",countryCode);
+	/**printf("- Codigo de Empresa - %u -\n",companyCode);
 	printf("- Codigo de Producto - %lu -\n",productCode);
 	printf("- Codigo de Control - %u -\n",controlDigit);*/
 
 	controlDigitCheck = computeControlDigit(barCodeStr);
+	printf("%d", controlDigitCheck);
 	/**
 	if(controlDigit != controlDigitCheck){
 		printf("Error en codigo de control. Leido %u vs Calculado %u\n", controlDigit, controlDigitCheck);
