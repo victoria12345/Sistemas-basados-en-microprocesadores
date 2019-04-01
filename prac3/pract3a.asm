@@ -28,11 +28,11 @@ _computeControlDigit PROC FAR 					;; En C es int unsigned long int factorial(un
 	MOV SI, 6
 	MOV DI,0
 	
-	LES BP, [BP + 6]
+	;;AQUI ES DONDE TENGO DUDA
+	LES BP, [BP + 6]	;Guardamos en ES el valor del segmento de barCodeStr y en BP el del offset
 	
 SUMA:
 	MOV AX, ES:[BP + DI]	;; Lectura parámetro pasado como valor a esta funcion
-	
 	MOV BX,0h
 	SUB AL, 30h			;;LO PASAMOS A DECIMAL
 	MOV BL, AL
@@ -40,7 +40,7 @@ SUMA:
 	
 	SUB AH, 30h		;;PASAMOS DE ASCII A DECIMAL
 	MOV AL, AH
-	MOV AH, 00h
+	MOV AH, 00h		;;GUARDAMOS EL NUMERO EN AX
 	
 	MOV BX, 3		;;MULTIPLICAMOS POR 3 LOS PARES
 	MUL BL
@@ -76,35 +76,42 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	PUSH BP 							;; Salvaguardar BP en la pila para poder modificarle sin modificar su valor
 	MOV BP, SP	
 
-	PUSH CX BX DX DI AX	;;salvaguardamos los valores de los registros que vamos a usar
+	PUSH CX BX DX DI AX ES DS ;;salvaguardamos los valores de los registros que vamos a usar
 	
-	LES BX, [BP + 6]
+	LES BX, [BP + 6] ;Meto en BX el offset y en ES segmento
 	
-	;; CODIGO PAIS
+	;;- CODIGO PAIS------------------------------------------------------
 	MOV AX, ES:[BX]
 	
+	; Formamos el codigo pais
 	SUB AH, 30h
 	SUB AL, 30h
-	
 	MOV CX, 00h
-	ADD CL, AH
+	MOV CL, AH ;annadimos las decenas, como unidades
 	
 	MOV AH, 00h
 	MOV DL, 10
 	MUL DL
+	ADD AX, CX	;Sumamos las centenas, como decenas
+	MUL DL 	;ahora lo tenemos de la forma centenas + decenas + 0 unidades
 	
-	ADD CX, AX
+	MOV DH, 00h
+	MOV DL, ES:[BX + 2]
+	SUB DL, 30h
+	ADD AX, DX
 	
-	LDS BX, [BP + 10]
-	MOV SI, BP
+	; Lo guardamos
+	LDS BX, [BP + 10]	;Meto en BX el offset y en DS segmento
+	PUSH BP			;Salvaguardamos el valor de BP
+	MOV BP, BX		;Necesitamos utilizar BP para modificar en memoria
+	MOV DS:[BP], AX ;Modificamos country-code
+	POP BP
 	
-	MOV BP, BX
-	MOV DS:BP, CX
 	
-	MOV BP, SI
+	;; -CODIGO EMPRESA------------------------------------------------------
 	
 	FIN2:	
-		POP AX DI DX BX CX
+		POP DS ES AX DI DX BX CX 
 		POP BP				;; Restaurar el valor de BP antes de salir
 		RET
 _decodeBarCode ENDP			
