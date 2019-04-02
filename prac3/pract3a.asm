@@ -96,7 +96,7 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	MUL DL 	;ahora lo tenemos de la forma centenas + decenas + 0 unidades
 	
 	MOV DH, 00h
-	MOV DL, ES:[BX + 2]
+	MOV DL, ES:[BX + 2] ;Guardamos el ultimo digito
 	SUB DL, 30h
 	ADD AX, DX
 	
@@ -109,6 +109,51 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	
 	
 	;; -CODIGO EMPRESA------------------------------------------------------
+	
+	LES BX, [BP + 6] ;Meto en BX el offset y en ES segmento
+	
+	
+	MOV AX, ES:[BX + 3] ;Guardamos dos primeros digitos
+	SUB AH, 30h		;Los transformamos a entero
+	SUB AL, 30h
+	MOV CX, 00h
+	MOV CL, AH ;annadimos la segunda cifra
+	
+	MOV AH, 00h
+	MOV DL, 10
+	MUL DL
+	ADD AX, CX	;Sumamos la primera cifra, como decenas
+	MUL DL
+	MOV CX, AX ;1 cifra + 2 cifra + '0'
+	
+	MOV AX, ES:[BX + 5] ;Guardamos los dos segundos digitos
+	SUB AL, 30h		;Los transformamos a entero
+	SUB AH, 30h		
+	
+	MOV DL, AL
+	MOV DH, 00h
+	ADD CX, DX	;Hemos sumado la tercera cifra
+	MOV DH, AH	;Almacenamos la cuarta cifra
+	MOV AX, CX
+	
+	MOV CL,DH	;Almacenamos la cuarta cifra
+	MOV CH, 00h
+	
+	MOV DL, 10
+	MOV DH, 00h
+	MUL DX
+	ADD AX, CX	;Annadimos la ultima cifra
+
+	; Lo guardamos
+	LDS BX, [BP + 14]	;Meto en BX el offset y en DS segmento
+	PUSH BP			;Salvaguardamos el valor de BP
+	MOV BP, BX		;Necesitamos utilizar BP para modificar en memoria
+	MOV DS:[BP], AX ;Modificamos codigo-empresa
+	POP BP
+	
+	;;-CODIGO PRODUCTO ------------------------------------------------------
+	
+	
 	
 	FIN2:	
 		POP DS ES AX DI DX BX CX 
