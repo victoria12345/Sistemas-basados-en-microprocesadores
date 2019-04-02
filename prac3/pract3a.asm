@@ -112,7 +112,7 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	
 	LES BX, [BP + 6] ;Meto en BX el offset y en ES segmento
 	
-	
+	;Formamos el codigo empresa
 	MOV AX, ES:[BX + 3] ;Guardamos dos primeros digitos
 	SUB AH, 30h		;Los transformamos a entero
 	SUB AL, 30h
@@ -153,7 +153,69 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	
 	;;-CODIGO PRODUCTO ------------------------------------------------------
 	
+	LES BX, [BP + 6] ;Meto en BX el offset y en ES segmento
 	
+	;Formamos el codigo producto
+	MOV AX, ES:[BX + 7] ;Guardamos dos primeros digitos
+	SUB AH, 30h		;Los transformamos a entero
+	SUB AL, 30h
+	MOV CX, 00h
+	MOV CL, AH ;annadimos la segunda cifra
+	
+	MOV AH, 00h
+	MOV DL, 10
+	MUL DL
+	ADD AX, CX	;Sumamos la primera cifra, como decenas
+	MUL DL
+	MOV CX, AX ;1 cifra + 2 cifra + '0'
+	
+	MOV AX, ES:[BX + 9] ;Guardamos los dos segundos digitos
+	SUB AL, 30h		;Los transformamos a entero
+	SUB AH, 30h		
+	
+	MOV DL, AL
+	MOV DH, 00h
+	ADD CX, DX	;Hemos sumado la tercera cifra
+	MOV DH, AH	;Almacenamos la cuarta cifra
+	MOV AX, CX
+	
+	MOV CL,DH	;Almacenamos la cuarta cifra
+	MOV CH, 00h
+	
+	MOV DX, 000Ah
+	MUL DX
+	ADD AX, CX	;Annadimos la cuarta cifra
+	MOV CX, 000Ah
+	MUL CX
+	
+	MOV CL, ES:[BX + 11]	;Ultima cifra
+	SUB CL, 30h
+	MOV CH, 00h
+	
+	ADD AX, CX		;La annadimos en AX, "parte baja del numero"
+	
+	; Lo guardamos
+	LDS BX, [BP + 18]	;Meto en BX el offset y en DS segmento
+	PUSH BP			;Salvaguardamos el valor de BP
+	MOV BP, BX		;Necesitamos utilizar BP para modificar en memoria
+	MOV DS:[BP], AX ;Modificamos codigo-empresa
+	MOV DS:[BP + 2], DX ;Modificamos codigo-empresa
+	POP BP
+	
+	;;-CODIGO DE CONTROL--------------------------------------------
+	
+	LES BX, [BP + 6] ;Meto en BX el offset y en ES segmento
+	
+	MOV AL, ES:[BX + 12]
+	MOV AH, 00h
+	
+	; Lo guardamos
+	LDS BX, [BP + 22]	;Meto en BX el offset y en DS segmento
+	PUSH BP			;Salvaguardamos el valor de BP
+	MOV BP, BX		;Necesitamos utilizar BP para modificar en memoria
+	MOV DS:[BP], AX ;Modificamos codigo-empresa
+	MOV DS:[BP + 2], WORD PTR(0)
+	POP BP
 	
 	FIN2:	
 		POP DS ES AX DI DX BX CX 
