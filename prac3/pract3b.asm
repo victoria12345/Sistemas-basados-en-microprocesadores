@@ -65,12 +65,46 @@ _createBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	ADD AH, 30h
 	MOV ES:[BX + 5], AL	;Lo guardamos 2 CIFRA
 	MOV ES:[BX + 6], AH	;guardamos 3 CIFRA
-	MOV ES:[BX + 7], BYTE PTR(0) ;Annadimos 0 de fin de cadena
+	
 	
 	;;-CODIGO PRODUCTO---------------------------------------------------------------
+	MOV DX, 00h
+	MOV AX, [BP + 10]
+	MOV CX, 10000
+	DIV CX
+	ADD AX, 30h
+	MOV ES:[BX + 7], AL  ;Guardamos primera cifra
 	
-
-	FIN:	
+	
+	MOV AX, DX  ;Movemos el resto a AX para volverlo a dividir
+	MOV DX, 00h
+	MOV CX, 1000
+	DIV CX
+	ADD AX, 30h
+	MOV ES:[BX + 8], AL  ;Guardamos la segunda cifra  
+	
+	MOV AX, DX
+	MOV DX,100
+	DIV DL
+	
+	ADD AL, 30h
+	MOV ES:[BX + 9], AL	 ;Guardamos la tercera cifra
+	
+	MOV DL, 10
+	MOV AL, AH
+	MOV AH, 00h
+	DIV DL
+	ADD AL, 30h
+	ADD AH, 30h
+	MOV ES:[BX + 10], AL  ;Guardamos la cuarta cifra
+	MOV ES:[BX + 11], AH  ;Guardamos la quinta cifra
+	
+	
+	;;-CODIGO CONTROL---------------------------------------------------------------
+	MOV AX, [BP + 14]
+	ADD AX, 30h
+	MOV ES:[BX + 12], AL  ;Guardamos el codigo de control
+	MOV ES:[BX + 13], BYTE PTR(0)  ;Guardamos el caracter de fin de cadena
 		POP ES DS DI SI DX BX CX
 		POP BP				;; Restaurar el valor de BP antes de salir
 		RET
