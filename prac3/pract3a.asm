@@ -28,7 +28,6 @@ _computeControlDigit PROC FAR 					;; En C es int unsigned long int factorial(un
 	MOV SI, 6
 	MOV DI,0
 	
-	;;AQUI ES DONDE TENGO DUDA
 	LES BP, [BP + 6]	;Guardamos en ES el valor del segmento de barCodeStr y en BP el del offset
 	
 SUMA:
@@ -101,9 +100,8 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	ADD AX, DX
 	
 	; Lo guardamos
-	LDS BX, [BP + 10]	;Meto en BX el offset y en DS segmento
-	PUSH BP			;Salvaguardamos el valor de BP
-	MOV BP, BX		;Necesitamos utilizar BP para modificar en memoria
+	PUSH BP
+	LDS BP, [BP + 10]
 	MOV DS:[BP], AX ;Modificamos country-code
 	POP BP
 	
@@ -145,9 +143,8 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	ADD AX, CX	;Annadimos la ultima cifra
 
 	; Lo guardamos
-	LDS BX, [BP + 14]	;Meto en BX el offset y en DS segmento
-	PUSH BP			;Salvaguardamos el valor de BP
-	MOV BP, BX		;Necesitamos utilizar BP para modificar en memoria
+	PUSH BP
+	LDS BP, [BP + 14]
 	MOV DS:[BP], AX ;Modificamos codigo-empresa
 	POP BP
 	
@@ -195,9 +192,8 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	ADD AX, CX		;La annadimos en AX, "parte baja del numero"
 	
 	; Lo guardamos
-	LDS BX, [BP + 18]	;Meto en BX el offset y en DS segmento
-	PUSH BP			;Salvaguardamos el valor de BP
-	MOV BP, BX		;Necesitamos utilizar BP para modificar en memoria
+	PUSH BP
+	LDS BP, [BP + 18]
 	MOV DS:[BP], AX ;Modificamos codigo-empresa
 	MOV DS:[BP + 2], DX ;Modificamos codigo-empresa
 	POP BP
@@ -207,14 +203,12 @@ _decodeBarCode PROC FAR 					;; En C es int unsigned long int factorial(unsigned
 	LES BX, [BP + 6] ;Meto en BX el offset y en ES segmento
 	
 	MOV AL, ES:[BX + 12]
-	MOV AH, 00h
+	SUB AL, 30h
 	
 	; Lo guardamos
-	LDS BX, [BP + 22]	;Meto en BX el offset y en DS segmento
-	PUSH BP			;Salvaguardamos el valor de BP
-	MOV BP, BX		;Necesitamos utilizar BP para modificar en memoria
-	MOV DS:[BP], AX ;Modificamos codigo-empresa
-	MOV DS:[BP + 2], WORD PTR(0)
+	PUSH BP
+	LDS BP, [BP + 22]
+	MOV DS:[BP], AL ;Modificamos codigo-empresa
 	POP BP
 	
 	FIN2:	
