@@ -7,12 +7,23 @@
 ;**************************************************************************
 ; DEFINICION DEL SEGMENTO DE DATOS
 DATOS SEGMENT
+	INTRO DB 1BH,"[1;1fLa tabla que vamos a utilizar es la siguiente$"
+	LINEA1 DB 1BH,"[3;3f|   | 1 | 2 | 3 | 4 | 5 | 6 |$"
+	LINEA2 DB 1BH,"[4;3f| 1 | Q | R | S | T | U | V |$"
+	LINEA3 DB 1BH,"[5;3f| 2 | W | X | Y | Z | 0 | 1 |$"
+	LINEA4 DB 1BH,"[6;3f| 3 | 2 | 3 | 4 | 5 | 6 | 7 |$"
+	LINEA5 DB 1BH,"[7;3f| 4 | 8 | 9 | A | B | C | D |$"
+	LINEA6 DB 1BH,"[8;3f| 5 | E | F | G | H | I | J |$"
+	LINEA7 DB 1BH,"[9;3f| 6 | K | L | M | N | O | P |$"
+	NUMERO DB 5 DUP(?)
 	CLR_PANT DB 1BH,"[2","J$"
 	ERROR DB 1BH,"[1;1fNuestro driver no esta instalado$"
-	INST DB 1BH, "[1;1FPor favor escribe la cadena: $"
-	TEXTO DB 1BH, "[2;1f","La cadena es: $"	
-	COD DB 1BH, "[3;1f","La cadena de caracteres codificada es: $"	
+	INST DB 1BH, "[11;1fPor favor escribe la cadena: $"
+	TEXTO DB 1BH, "[12;1f","La cadena es: $"	
+	COD DB 1BH, "[13;1f","La cadena de caracteres codificada es: $"	
 	DECOD DB 1BH, "[3;1f","La cadena de caracteres decodificada es: $"	
+	TABLA_N DB 43,44,45,46,51,52,53,54,55,56,61,62,63,64,65,66,11,12,13,14,15,16,21,22,23,24,25,26,31,32,33,34,35,36,41,42
+	TABLA_NL DB "43","44","45","46","51","52","53","54","55","56","61","62","63","64","65","66","11","12","13","14","15","16","21","22","23","24","25","26","31","32","33","34","35","36","41","42"
 	STRING DB 100 DUP(?)
 DATOS ENDS
 ;**************************************************************************
@@ -45,6 +56,24 @@ MOV SP, 64 ; CARGA EL PUNTERO DE PILA CON EL VALOR MAS ALTO
 ;COMENZAMOS "LIMPIANDO" LA PANTALLA
 MOV AH,9
 MOV DX, OFFSET CLR_PANT
+INT 21H
+
+;IMPRIMIMOS LA TABLA
+MOV DX, OFFSET INTRO
+INT 21H
+MOV DX, OFFSET LINEA1
+INT 21H
+MOV DX, OFFSET LINEA2
+INT 21H
+MOV DX, OFFSET LINEA3
+INT 21H
+MOV DX, OFFSET LINEA4
+INT 21H
+MOV DX, OFFSET LINEA5
+INT 21H
+MOV DX, OFFSET LINEA6
+INT 21H
+MOV DX, OFFSET LINEA7
 INT 21H
 
 ;MIRAMOS SI NUESTRO DRIVER ESTA INSTALADO
@@ -92,10 +121,35 @@ INT 21H
 PUSH DS
 MOV DX, OFFSET STRING[2]
 MOV BX, SEG STRING
-MOV DS,BX
+MOV DS, BX
 MOV AH, 10
 INT 57H
 POP DS
+
+;PASAMOS A ASCII
+MOV SI,0
+SALTO_:
+	MOV BL, 10
+	MOV AH,00
+	MOV AL, STRING[2+SI]
+	DIV BL
+
+	MOV BL, AH
+	ADD AL, 48
+	MOV AH,2
+	MOV DL,AL
+	INT 21H
+
+	ADD BL,48
+	MOV DL, BL
+	INT 21H
+
+	MOV DL, ' '
+	INT 21H
+
+	INC SI
+	CMP STRING[2+SI], '$'
+	JNE SALTO_
 
 ; FIN DEL PROGRAMA
 FIN:
