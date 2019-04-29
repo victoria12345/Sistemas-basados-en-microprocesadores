@@ -21,7 +21,7 @@ DATOS SEGMENT
 	INST DB 1BH, "[11;1fPor favor escribe la cadena: $"
 	TEXTO DB 1BH, "[12;1f","La cadena es: $"	
 	COD DB 1BH, "[13;1f","La cadena de caracteres codificada es: $"	
-	DECOD DB 1BH, "[3;1f","La cadena de caracteres decodificada es: $"	
+	DECOD DB 1BH, "[14;1f","La cadena de caracteres decodificada es: $"	
 	TABLA_N DB 43,44,45,46,51,52,53,54,55,56,61,62,63,64,65,66,11,12,13,14,15,16,21,22,23,24,25,26,31,32,33,34,35,36,41,42
 	TABLA_NL DB "43","44","45","46","51","52","53","54","55","56","61","62","63","64","65","66","11","12","13","14","15","16","21","22","23","24","25","26","31","32","33","34","35","36","41","42"
 	STRING DB 100 DUP(?)
@@ -151,6 +151,23 @@ SALTO_:
 	CMP STRING[2+SI], '$'
 	JNE SALTO_
 
+;AHORA DECODIFICAMOS DE NUEVO E IMPRIMIMOS
+MOV AH,9
+MOV DX, OFFSET DECOD
+INT 21H
+
+PUSH DS
+MOV DX, OFFSET STRING[2]
+MOV BX, SEG STRING
+MOV DS, BX
+MOV AH, 11
+INT 57H
+POP DS
+
+MOV AH,9
+MOV DX, OFFSET STRING[2]
+INT 21H
+	
 ; FIN DEL PROGRAMA
 FIN:
 MOV AX, 4C00h
