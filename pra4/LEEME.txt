@@ -4,15 +4,15 @@ APARTADO A EJERCICIO 1
 INTERRUPCIÓN 57H:
 -Hemos añadido una función que sea la siguiente: cuando llamas a la interrupción y en AH se encuentra el valor
  9, la interrupción debe modificar el valor de AH a 1 (valor que hemos decidido), esto nos servirá para saber
- si nuestro river está ya instalado o no.
--Cuando se llama  ala interrupción y en AH está el valor 10H la interrupción modificará la cadena de caracteres 
+ si nuestro Driver está ya instalado o no.
+-Cuando se llama  a la interrupción y en AH está el valor 10H la interrupción modificará la cadena de caracteres 
  que se encuentra en DS:DX. Esta cadena estará formada por los caracteres numéricos y las letras mayúsculas.
  La rutina de interrupción modificará cada uno de los caracteres de la cadena por el valor numérico correspondiente
  de la tabla de Polibio. NO por el caracter ASCII del número, si no, por el NÚMERO, ya que en el enunciado se nos 
- dice explícitamente " transformar los caracteres alfabéticos en números". Esto último lo hemos dejado claro porque 
+ dice explícitamente " transformar los caracteres alfabéticos en números". Esto último lo aclaramos porque 
  tuvimos dudas al principio.
--Cuando se llama  ala interrupción y en AH está el valor 11 realizará la función contraria a la anteriormente explicada
- recibirá una cadea de número de 1B y cada número corresponde a un carácter que con la tabla Polibio decodificaremos,
+-Cuando se llama  a la interrupción y en AH está el valor 11 se realizará la función contraria a la anteriormente explicada
+ recibirá una cadena de números de 1Byte y cada número corresponde a un carácter que con la tabla Polibio decodificaremos,
  la cadena quedará modificada a los valores ASCII de las letras correspondientes.
 
 **En el apartado A para comprobar si NUESTRO driver estaba instalado, esto es necesario para cuando llamamos a p4a.com
@@ -22,7 +22,7 @@ APARTADO B EJERCICIO 1
 En este ejercicio nos pedían que creáramos un programa para probar el funcionamiento del progrma residente.
 Mostramos la matriz Polibio utilizada, teniendo en cuenta que somos la pareja 21, y pedimos al usuario que introduzca una
 cadena de caracteres. Anteriormente hemos comprobado que nuestro driver esté instalado.
-Después lamamos a la interrupción 57H con el valor 10H en AH, esto nos devuelve una cadena de enteros de 1B, cada entero
+Después llamamos a la interrupción 57H con el valor 10H en AH, esto nos devuelve una cadena de enteros de 1B, cada entero
 corresponde a una letra de la cadena leída por teclado. 
 Para imprimir el resultado tenemos que ir calculando la cadena ASCII de los números obtenidos, para imprimir el resultado
 númerico obtenido en la codificación, hemos separado por espacios los números de cada carácter. 
@@ -32,3 +32,25 @@ debe coincidir con el que el usuario introdujo.
 **El usuario debe introducir una cadena sin espacios y con los valores alfnuméricos correspondientes
 **Cuando devolvemos la cadena en Polibio por simplicidad añadimos el símobolo '$' después del último número, para así saber  
   cuando acaba.
+
+APARTADO C
+Aqui nos piden que utilicemos la interrupción 1Ch y creemos un programa que llama a la interrupción anterior y codifique/decodifique 
+imprimiendo el resultado por pantalla, un caracter por segundo.
+Para ello hemos hecho que la interrupción 1Ch (que es llamada 18,2 veces por segundo) vaya incrementando un contador, cuando este llegue a 
+18, pondrá el valor de la variable semáforo a 1.
+También hemos modificado la interrupción 57H, ahora, a parte de devolver la cadena codificada/decodificada, dentro de la interrupción 
+también se imprimirán los caracteres correspondientes. 
+Cuando imprime un caracter pone el valor de semáforo a 0, de manera que hasta que la interrupción 1Ch no sea llama 18 veces, aparoximadamente
+1 segundo, no volverá a tener el valor a 1 e imprimir el siguiente carácter.
+Nos gustaría aclarar que cuando codificamos imprimimos un número por segundo, ya que cada número representa un carácter. Es decir, si la cadena
+es "AA" imprimiremos 43 y al segundo siguiente 43, y no, 4 -esperamos un segundo-3, ya que consideramos el número como carácter y no cada 
+carácter del número. Esto lo hemos hecho así teniendo en cuenta el funcionamiento del polibio y que cada número representa un carácter.
+En el instalador hemos tenido que hacer que instale también esta nueva interrupción.
+
+**El programa p4c.exe es en el que introduciremos una cadena para codificar/decodificar
+**Dado que en el enunciado no se dice nada e imprimimos la tabla Polibio usada explícitamente no hemos hecho detección de errores de, por ejemplo,
+  si el usuario intenta introducir un espacio o un carácter no válido.
+
+PRÁCTICA 4
+IGNACIO RABUÑAL Y VICTORIA PELAYO
+GRUPO 2301

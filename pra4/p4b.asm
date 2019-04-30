@@ -17,7 +17,7 @@ DATOS SEGMENT
 	LINEA7 DB 1BH,"[9;3f| 6 | K | L | M | N | O | P |$"
 	NUMERO DB 5 DUP(?)
 	CLR_PANT DB 1BH,"[2","J$"
-	ERROR DB 1BH,"[1;1fNuestro driver no esta instalado$"
+	ERROR DB 1BH,"[11;1fERROR. Nuestro driver no esta instalado$"
 	INST DB 1BH, "[11;1fPor favor escribe la cadena: $"
 	TEXTO DB 1BH, "[12;1f","La cadena es: $"	
 	COD DB 1BH, "[13;1f","La cadena de caracteres codificada es: $"	

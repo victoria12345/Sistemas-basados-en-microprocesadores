@@ -1,7 +1,7 @@
 ;*************************************************************************
 ; Autores: Victoria Pelayo e Ignacio Rabunnal
 ; grupo: 2301
-; Practica 1 apartado A
+; Practica 4 apartado C
 ;*************************************************************************
 
 ;**************************************************************************
@@ -17,13 +17,16 @@ DATOS SEGMENT
 	LINEA7 DB 1BH,"[9;3f| 6 | K | L | M | N | O | P |$"
 	NUMERO DB 5 DUP(?)
 	CLR_PANT DB 1BH,"[2","J$"
-	ERROR DB 1BH,"[1;1fNuestro driver no esta instalado$"
+	CERRAR DB 1BH,"[12;1fCerrando programa...$"
+	ERROR DB 1BH,"[11;1fERROR.Nuestro driver no esta instalado$"
 	INST_DEC DB 1BH, "[14;1fIntroduzca los numeros seguidos y sin espacios: $"
+	INST_COD DB 1BH, "[14;1fIntroduzca la cadena (solo numeros y letras mayusculas sin espacios): $"
 	INST DB 1BH, "[11;1fespecifique lo que quiere hacer (cod/decod/quit): $"
 	TEXTO DB 1BH, "[12;1f","La cadena es: $"	
 	COD DB 1BH, "[13;1f","Introduzca cadena para codificar: $"	
 	DECOD DB 1BH, "[13;1f","Introduzca cadena para decodificar: $"
 	RESDEC DB 1BH,"[15;1f","Cadena decodificada: $"
+	RESCOD DB 1BH,"[15;1f","Cadena codificada: $"
 	CADENA DB 100 DUP(?)
 	TABLA_N DB 43,44,45,46,51,52,53,54,55,56,61,62,63,64,65,66,11,12,13,14,15,16,21,22,23,24,25,26,31,32,33,34,35,36,41,42
 	TABLA_NL DB "43","44","45","46","51","52","53","54","55","56","61","62","63","64","65","66","11","12","13","14","15","16","21","22","23","24","25","26","31","32","33","34","35","36","41","42"
@@ -88,7 +91,7 @@ JE OK
 MOV AH,9
 MOV DX, OFFSET ERROR
 INT 21H
-JMP FIN
+
 
 OK:
 
@@ -116,6 +119,7 @@ CMP STRING[4], 'i'
 JNE CODi
 CMP STRING[5], 't'
 JNE CODi
+JE FIN
 
 CODi:
 CMP STRING[2], 'c'
@@ -129,26 +133,34 @@ MOV AH,9
 MOV DX, OFFSET COD
 INT 21H
 
+CALL CODIFICAR
+JMP FIN2
+
 DECODi:
 CMP STRING[2], 'd'
-JNE FIN
+JNE FIN2
 CMP STRING[3], 'e'
-JNE FIN
+JNE FIN2
 CMP STRING[4], 'c'
-JNE FIN
+JNE FIN2
 CMP STRING[5], 'o'
-JNE FIN
+JNE FIN2
 CMP STRING[6], 'd'
-JNE FIN
+JNE FIN2
 
 MOV DX, OFFSET DECOD
 MOV AH,9
 INT 21H
 
 CALL DECODIFICAR
+JMP FIN2
 
 ; FIN DEL PROGRAMA
 FIN:
+MOV AH,9
+MOV DX, OFFSET CERRAR
+INT 21H
+FIN2:
 MOV AX, 4C00h
 INT 21h
 INICIO ENDP
@@ -179,6 +191,8 @@ EXISTE:
 	MOV AH,1	
 	
 FINAL:
+
+	
 	POP BX ES
 	RET
 
@@ -186,7 +200,7 @@ DRIVER ENDP
 
 DECODIFICAR PROC
 	MOV AH,9
-	MOV DX, OFFSET INST_DEC
+	MOV DX, OFFSET INST_COD
 	INT 21H
 
 	MOV AH, 0AH
@@ -238,6 +252,42 @@ DECODIFICAR PROC
 	S1:
 		RET
 DECODIFICAR ENDP
+
+CODIFICAR PROC
+	MOV AH,9
+	MOV DX, OFFSET INST_DEC
+	INT 21H
+
+	MOV AH, 0AH
+	MOV DX, OFFSET STRING
+	MOV STRING[0], 95
+	INT 21H
+
+	;COMPROBAMOS QUE NO SEA NULL
+	MOV BH,0
+	MOV BL, STRING[1]
+	CMP BL,0
+	JE S2
+	
+	;ESCRIBIMOS $ AL FINAL 
+	MOV STRING[BX+2], '$'
+	
+	MOV AH,9
+	MOV DX, OFFSET RESCOD
+	INT 21H
+	
+	;LLAMAMOS A LA INTERRUPCION
+	PUSH DS
+	MOV DX, OFFSET STRING[2]
+	MOV BX, SEG STRING
+	MOV DS, BX
+	MOV AH, 10H
+	INT 57H
+	POP DS
+	
+	S2:
+		RET
+CODIFICAR ENDP
 
 CODE ENDS
 ; FIN DEL PROGRAMA INDICANDO DONDE COMIENZA LA EJECUCION
